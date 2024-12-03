@@ -16,38 +16,48 @@ import addressRouter from './route/address.route.js'
 import orderRouter from './route/order.route.js'
 
 const app = express()
+
+// Configuración de CORS
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_URL
-}))
-app.use(express.json())
-app.use(cookieParser())
-app.use(morgan())
+    credentials: true,
+    origin: process.env.FRONTEND_URL
+}));
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(morgan('dev'));
 app.use(helmet({
-    crossOriginResourcePolicy : false
-}))
+    crossOriginResourcePolicy: false
+}));
 
-const PORT = 8080 || process.env.PORT 
+// Definir el puerto, usando .env o puerto por defecto
+const PORT = process.env.PORT || 8080;
 
-app.get("/",(request,response)=>{
-    ///server to client
+app.get("/", (request, response) => {
     response.json({
-        message : "Server is running " + PORT
-    })
-})
+        message: "Server is running on port " + PORT
+    });
+});
 
-app.use('/api/user',userRouter)
-app.use("/api/category",categoryRouter)
-app.use("/api/file",uploadRouter)
-app.use("/api/subcategory",subCategoryRouter)
-app.use("/api/product",productRouter)
-app.use("/api/cart",cartRouter)
-app.use("/api/address",addressRouter)
-app.use('/api/order',orderRouter)
+// Rutas de la API
+app.use('/api/user', userRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/file", uploadRouter);
+app.use("/api/subcategory", subCategoryRouter);
+app.use("/api/product", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/address", addressRouter);
+app.use('/api/order', orderRouter);
 
-connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log("Server is running",PORT)
-    })
-})
+// Conectar a la base de datos y levantar el servidor
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log("Server is running on port", PORT);
+    });
+});
 
+// Middleware de manejo de errores (opcional)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Algo salió mal en el servidor' });
+});
